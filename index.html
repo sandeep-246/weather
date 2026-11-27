@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!-- Created by Sandeep. Copyright 2026 Sandeep. All rights reserved. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Sandeep">
+<meta name="copyright" content="Sandeep">
+<meta name="theme-color" content="#CDE9F7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Weather">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weather</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#CDE9F7; --bg2:#FFF3D1; --card:rgba(255,255,255,.72); --ink:#1D2B3A; --soft:#566879; --accent:#E8801A; --line:rgba(29,43,58,.18);
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg1:#0E1A2B; --bg2:#26324D; --card:rgba(255,255,255,.08); --ink:#EAF1F8; --soft:#9DB0C4; --accent:#FFB347; --line:rgba(234,241,248,.2); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg1:#0E1A2B; --bg2:#26324D; --card:rgba(255,255,255,.08); --ink:#EAF1F8; --soft:#9DB0C4; --accent:#FFB347; --line:rgba(234,241,248,.2); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px); overscroll-behavior:none}
+body{
+  margin:0; min-height:100vh; min-height:100dvh; overscroll-behavior:none; touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none;
+  background-color:var(--bg1); background-image:linear-gradient(160deg,var(--bg1),var(--bg2)); background-attachment:fixed;
+  color:var(--ink); font-family:"Fredoka","Segoe UI",system-ui,sans-serif;
+  display:flex; flex-direction:column; align-items:center;
+}
+[hidden]{display:none !important}
+.screen{width:100%; max-width:420px; flex:1; padding:28px 20px 24px; display:flex; flex-direction:column; align-items:center; gap:16px}
+.center{justify-content:center}
+h1{margin:0; font-size:2.6rem; line-height:1.1; font-weight:600; text-align:center}
+h2{margin:0; font-size:1.9rem; line-height:1.1; font-weight:600; text-align:center}
+p{margin:0}
+.hint{color:var(--soft)}
+.msg{color:var(--soft); text-align:center; min-height:1.4rem}
+
+#splash{cursor:pointer; gap:14px}
+.icon{width:140px; height:140px; border-radius:34px; background:var(--card); border:3px solid var(--ink); padding:16px}
+.icon svg{width:100%; height:100%; overflow:visible}
+.pop{animation:pop .6s ease-out both}
+@keyframes pop{from{transform:scale(.7); opacity:0}to{transform:none; opacity:1}}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}}
+
+.btn{
+  font:inherit; font-size:1.3rem; font-weight:500; width:100%; max-width:300px; padding:12px 20px; cursor:pointer;
+  background:var(--card); color:var(--ink); border:2px solid var(--ink); border-radius:999px;
+}
+.btn.main{background:var(--accent); border-color:var(--accent); color:#1D2B3A}
+.btn:focus-visible,.item:focus-visible,.rm:focus-visible,.field:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.menu{display:flex; flex-direction:column; align-items:center; gap:12px; width:100%}
+.row{display:flex; gap:10px; width:100%; justify-content:center}
+.row .btn{font-size:1.15rem; padding:10px 14px}
+
+.field{
+  font:inherit; font-size:1.2rem; width:100%; padding:12px 16px; border:2px solid var(--ink); border-radius:14px;
+  background:var(--card); color:var(--ink); -webkit-user-select:text; user-select:text;
+}
+.list{display:flex; flex-direction:column; gap:10px; width:100%}
+.item{
+  display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; text-align:left; font:inherit; font-size:1.15rem;
+  padding:12px 16px; background:var(--card); color:var(--ink); border:1px solid var(--line); border-radius:14px; cursor:pointer;
+}
+.item span{color:var(--soft); font-size:.9rem}
+.crow{display:flex; gap:8px; width:100%}
+.crow .item{flex:1}
+.rm{font:inherit; font-size:1.2rem; width:48px; border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); cursor:pointer}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:22px; padding:18px; width:100%}
+.hero{display:flex; align-items:center; justify-content:center; gap:14px}
+.emoji{font-size:4rem; line-height:1}
+.temp{font-size:4.6rem; font-weight:600; line-height:1}
+.desc{text-align:center; font-size:1.3rem; margin-top:4px}
+.stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; text-align:center; margin-top:14px}
+.stats span{display:block; color:var(--soft); font-size:.85rem}
+.stats b{font-size:1.1rem; font-weight:600}
+.day{display:flex; align-items:center; gap:12px; padding:8px 0; border-top:1px solid var(--line)}
+.day:first-child{border-top:0}
+.dn{width:56px; font-weight:500}
+.de{font-size:1.5rem}
+.dd{flex:1; color:var(--soft); font-size:.95rem}
+.dt{font-weight:600}
+.help{display:flex; flex-direction:column; gap:10px; font-size:1.1rem; line-height:1.4}
+</style>
+</head>
+<body>
+
+<section id="splash" class="screen center" aria-label="Weather">
+  <div class="icon pop">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <g stroke="#E8801A" stroke-width="5" stroke-linecap="round"><path d="M68 8v8M48 28h8M80 28h8M54 14l5 5M82 14l-5 5"/></g>
+      <circle cx="68" cy="28" r="12" fill="#E8801A"/>
+      <path d="M28 78H68A12 12 0 0 0 70 54A18 18 0 0 0 36 50A14 14 0 0 0 28 78Z" fill="#fff" stroke="#1D2B3A" stroke-width="4" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <h1>Weather</h1>
+  <p class="hint">Tap to start</p>
+</section>
+
+<section id="menu" class="screen center" hidden>
+  <h1>Weather</h1>
+  <div class="menu">
+    <button type="button" class="btn main" id="bCheck">Check weather</button>
+    <button type="button" class="btn" id="bCities">My cities</button>
+    <button type="button" class="btn" id="bHelp">Help</button>
+    <button type="button" class="btn" id="bQuit">Quit</button>
+  </div>
+</section>
+
+<section id="search" class="screen" hidden>
+  <h2>Find a city</h2>
+  <input class="field" id="q" type="text" placeholder="Type a city name" autocomplete="off" aria-label="City name">
+  <div class="row">
+    <button type="button" class="btn main" id="bSearch">Search</button>
+    <button type="button" class="btn" id="bLoc">My location</button>
+  </div>
+  <p class="msg" id="sMsg" aria-live="polite"></p>
+  <div class="list" id="results"></div>
+  <button type="button" class="btn" id="bSearchBack">Back</button>
+</section>
+
+<section id="weather" class="screen" hidden>
+  <div>
+    <h2 id="wName"></h2>
+    <p class="hint" id="wSub" style="text-align:center"></p>
+  </div>
+  <p class="msg" id="wMsg" aria-live="polite"></p>
+  <div id="wBody" class="list" hidden>
+    <div class="card">
+      <div class="hero"><span class="emoji" id="wEmoji"></span><span class="temp" id="wTemp"></span></div>
+      <p class="desc" id="wDesc"></p>
+      <div class="stats">
+        <div><span>Feels like</span><b id="wFeel"></b></div>
+        <div><span>Humidity</span><b id="wHum"></b></div>
+        <div><span>Wind</span><b id="wWind"></b></div>
+      </div>
+    </div>
+    <div class="card" id="forecast"></div>
+  </div>
+  <div class="row">
+    <button type="button" class="btn main" id="bSave">Save city</button>
+    <button type="button" class="btn" id="bWBack">Back</button>
+  </div>
+</section>
+
+<section id="cities" class="screen" hidden>
+  <h2>My cities</h2>
+  <p class="msg" id="cMsg"></p>
+  <div class="list" id="cList"></div>
+  <button type="button" class="btn main" id="bCBack">Back</button>
+</section>
+
+<section id="help" class="screen" hidden>
+  <h2>How it works</h2>
+  <div class="card help">
+    <p>Tap <b>Check weather</b>, type a city and tap a result to see today and the next 4 days.</p>
+    <p>Tap <b>My location</b> to see the weather where you are. Your phone will ask for permission.</p>
+    <p>Tap <b>Save city</b> to keep it in <b>My cities</b> for quick access.</p>
+    <p>You need an internet connection to load the weather.</p>
+  </div>
+  <button type="button" class="btn main" id="bHelpBack">Back</button>
+</section>
+
+<section id="bye" class="screen center" hidden>
+  <h2>Thanks for using Weather</h2>
+  <p class="hint">You can close this tab now.</p>
+  <button type="button" class="btn main" id="bAgain">Back to menu</button>
+</section>
+
+<script>
+(function(){
+  var KEY="sandeep-weather-cities";
+  var $=function(id){return document.getElementById(id)};
+  var screens=["splash","menu","search","weather","cities","help","bye"];
+  var cities=[],current=null,backTo="search",reqId=0;
+
+  function show(id){
+    screens.forEach(function(s){$(s).hidden=(s!==id)});
+    window.scrollTo(0,0);
+    if(id==="cities")renderCities();
+  }
+  function el(tag,cls,text){
+    var e=document.createElement(tag);
+    if(cls)e.className=cls;
+    if(text!=null)e.textContent=text;
+    return e;
+  }
+
+  /* saved cities */
+  function loadCities(){
+    try{var c=JSON.parse(localStorage.getItem(KEY)||"[]");cities=Array.isArray(c)?c:[]}catch(e){cities=[]}
+  }
+  function saveCities(){try{localStorage.setItem(KEY,JSON.stringify(cities))}catch(e){}}
+  function same(a,b){return Math.abs(a.lat-b.lat)<0.01&&Math.abs(a.lon-b.lon)<0.01}
+  function indexOfCity(c){for(var i=0;i<cities.length;i++)if(same(cities[i],c))return i;return -1}
+
+  /* weather codes */
+  function info(c){
+    if(c===0)return["\u2600\ufe0f","Clear sky"];
+    if(c===1)return["\ud83c\udf24\ufe0f","Mostly clear"];
+    if(c===2)return["\u26c5","Partly cloudy"];
+    if(c===3)return["\u2601\ufe0f","Overcast"];
+    if(c===45||c===48)return["\ud83c\udf2b\ufe0f","Foggy"];
+    if(c>=51&&c<=57)return["\ud83c\udf26\ufe0f","Drizzle"];
+    if(c>=61&&c<=67)return["\ud83c\udf27\ufe0f","Rain"];
+    if(c>=71&&c<=77)return["\u2744\ufe0f","Snow"];
+    if(c>=80&&c<=82)return["\ud83c\udf26\ufe0f","Rain showers"];
+    if(c===85||c===86)return["\ud83c\udf28\ufe0f","Snow showers"];
+    if(c>=95)return["\u26c8\ufe0f","Thunderstorm"];
+    return["\ud83c\udf21\ufe0f","Unknown"];
+  }
+
+  /* search */
+  function setMsg(t){$("sMsg").textContent=t}
+  function search(){
+    var q=$("q").value.trim();
+    $("results").innerHTML="";
+    if(!q){setMsg("Type a city name first.");return}
+    setMsg("Searching\u2026");
+    fetch("https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&format=json&name="+encodeURIComponent(q))
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(d){
+        var list=d.results||[];
+        if(!list.length){setMsg("No city found. Check the spelling.");return}
+        setMsg("Tap a city");
+        list.forEach(function(x){
+          var sub=[x.admin1,x.country].filter(Boolean).join(", ");
+          var b=el("button","item");b.type="button";
+          b.appendChild(el("b",null,x.name));
+          b.appendChild(el("span",null,sub));
+          b.addEventListener("click",function(){openCity({name:x.name,sub:sub,lat:x.latitude,lon:x.longitude},"search")});
+          $("results").appendChild(b);
+        });
+      })
+      .catch(function(){setMsg("Could not search. Check your internet.")});
+  }
+  function useLocation(){
+    if(!navigator.geolocation){setMsg("Location is not available on this device.");return}
+    setMsg("Finding your location\u2026");
+    navigator.geolocation.getCurrentPosition(function(p){
+      setMsg("");
+      openCity({name:"My location",sub:"",lat:p.coords.latitude,lon:p.coords.longitude},"search");
+    },function(){setMsg("Could not get your location. Allow access or search by city.")},{timeout:10000});
+  }
+
+  /* weather */
+  function updateSaveBtn(){$("bSave").textContent=indexOfCity(current)>-1?"Saved \u2713":"Save city"}
+  function openCity(c,from){
+    current=c;backTo=from;
+    var id=++reqId;
+    show("weather");
+    $("wName").textContent=c.name;$("wSub").textContent=c.sub||"";
+    $("wBody").hidden=true;$("wMsg").textContent="Loading\u2026";
+    updateSaveBtn();
+    var url="https://api.open-meteo.com/v1/forecast?latitude="+c.lat+"&longitude="+c.lon+
+      "&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m"+
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5";
+    fetch(url)
+      .then(function(r){if(!r.ok)throw 0;return r.json()})
+      .then(function(d){if(id===reqId)renderWeather(d)})
+      .catch(function(){if(id===reqId)$("wMsg").textContent="Could not load the weather. Check your internet and go back to try again."});
+  }
+  function renderWeather(d){
+    var cur=d.current,dl=d.daily,i=info(cur.weather_code);
+    $("wEmoji").textContent=i[0];
+    $("wTemp").textContent=Math.round(cur.temperature_2m)+"\u00b0C";
+    $("wDesc").textContent=i[1];
+    $("wFeel").textContent=Math.round(cur.apparent_temperature)+"\u00b0C";
+    $("wHum").textContent=Math.round(cur.relative_humidity_2m)+"%";
+    $("wWind").textContent=Math.round(cur.wind_speed_10m)+" km/h";
+    var f=$("forecast");f.innerHTML="";
+    dl.time.forEach(function(t,k){
+      var di=info(dl.weather_code[k]);
+      var name=k===0?"Today":new Date(t+"T12:00:00").toLocaleDateString("en",{weekday:"short"});
+      var row=el("div","day");
+      row.appendChild(el("span","dn",name));
+      row.appendChild(el("span","de",di[0]));
+      row.appendChild(el("span","dd",di[1]));
+      row.appendChild(el("span","dt",Math.round(dl.temperature_2m_max[k])+"\u00b0 / "+Math.round(dl.temperature_2m_min[k])+"\u00b0"));
+      f.appendChild(row);
+    });
+    $("wMsg").textContent="";
+    $("wBody").hidden=false;
+  }
+
+  /* saved list screen */
+  function renderCities(){
+    var box=$("cList");box.innerHTML="";
+    $("cMsg").textContent=cities.length?"":"No saved cities yet. Search a city and tap Save city.";
+    cities.forEach(function(c,k){
+      var row=el("div","crow");
+      var b=el("button","item");b.type="button";
+      b.appendChild(el("b",null,c.name));
+      if(c.sub)b.appendChild(el("span",null,c.sub));
+      b.addEventListener("click",function(){openCity(c,"cities")});
+      var x=el("button","rm","\u2715");x.type="button";x.setAttribute("aria-label","Remove "+c.name);
+      x.addEventListener("click",function(){cities.splice(k,1);saveCities();renderCities()});
+      row.appendChild(b);row.appendChild(x);box.appendChild(row);
+    });
+  }
+
+  /* navigation */
+  var splashTimer=setTimeout(goMenu,2400);
+  function goMenu(){clearTimeout(splashTimer);if(!$("splash").hidden)show("menu")}
+  $("splash").addEventListener("click",goMenu);
+  $("splash").tabIndex=0;
+  $("splash").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")goMenu()});
+
+  $("bCheck").addEventListener("click",function(){show("search");$("q").focus()});
+  $("bCities").addEventListener("click",function(){show("cities")});
+  $("bHelp").addEventListener("click",function(){show("help")});
+  $("bQuit").addEventListener("click",function(){show("bye");try{window.close()}catch(e){}});
+  $("bAgain").addEventListener("click",function(){show("menu")});
+  $("bHelpBack").addEventListener("click",function(){show("menu")});
+  $("bCBack").addEventListener("click",function(){show("menu")});
+  $("bSearchBack").addEventListener("click",function(){show("menu")});
+  $("bSearch").addEventListener("click",search);
+  $("bLoc").addEventListener("click",useLocation);
+  $("q").addEventListener("keydown",function(e){if(e.key==="Enter")search()});
+  $("bWBack").addEventListener("click",function(){reqId++;show(backTo)});
+  $("bSave").addEventListener("click",function(){
+    if(!current)return;
+    var k=indexOfCity(current);
+    if(k>-1)cities.splice(k,1);
+    else if(cities.length<20)cities.push(current);
+    saveCities();updateSaveBtn();
+  });
+
+  loadCities();
+  show("splash");
+})();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+</body>
+</html>
