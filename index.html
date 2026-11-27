@@ -315,7 +315,7 @@ p{margin:0}
   }
 
   /* navigation */
-  var splashTimer=setTimeout(goMenu,2400);
+  var splashTimer=null;
   function goMenu(){clearTimeout(splashTimer);if(!$("splash").hidden)show("menu")}
   $("splash").addEventListener("click",goMenu);
   $("splash").tabIndex=0;
